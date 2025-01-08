@@ -1,63 +1,112 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-  private Rigidbody rb;
-  public float moveSpeed = 5f; // 移动速度
-  public float lookSpeedX = 2f; // 水平旋转速度
-  public float lookSpeedY = 2f; // 垂直旋转速度
-  public Transform playerBody; // 玩家身体 Transform
-  private float xRotation = 0f; // 垂直旋转角度
-  public float jumpForce = 10f;  // 跳跃的力量
-  public float gravity = -9.8f;  // 自定义的重力加速度（可以调整）
+    private CharacterController characterController;
+    private Camera mainCamera;
 
-  void Start()
-  {
-    rb = GetComponent<Rigidbody>();
-    rb.useGravity = false;
-  }
+    // 移动速度
+    private float moveSpeed = 3f;
 
-  void Update()
-  {
-    // 获取鼠标输入（控制视角）
-    float mouseX = Input.GetAxis("Mouse X") * lookSpeedX;
-    float mouseY = Input.GetAxis("Mouse Y") * lookSpeedY;
+    // 鼠标灵敏度
+    private float senX = 600f;
+    private float senY = 600f;
 
-    // 水平旋转玩家
-    playerBody.Rotate(Vector3.up * mouseX);
+    // 旋转角度
+    private float xRotation;
+    private float yRotation;
 
-    // 垂直旋转摄像机（限制垂直角度）
-    xRotation -= mouseY;
-    xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-    Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    // 重力
+    private float gravity = 20;
+    // 跳跃速度
+    private float jumpSpeed = 7;
+    // 竖直方向速度
+    private float verticalSpeed = -1f;
 
-    // 获取键盘输入（控制移动）
-    float moveX = Input.GetAxis("Horizontal");
-    float moveZ = Input.GetAxis("Vertical");
+    // 水平平面移动方向
+    private Vector3 moveDirection;
+    // 竖直方向移动
+    private Vector3 verticalMovement;
 
-    Vector3 move = transform.right * moveX + transform.forward * moveZ;
-    transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
-
-    if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
+    void Start()
     {
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z); // 使角色向上跳跃
-    }
-  }
+        // 指针锁定在屏幕中央
+        Cursor.lockState = CursorLockMode.Locked;
+        // 指针不可见
+        Cursor.visible = false;
 
-  void FixedUpdate()
-  {
-    // 模拟重力
-    if (!IsGrounded())  // 如果角色不在地面上，就模拟重力
+        characterController = GetComponent<CharacterController>();
+        mainCamera = GetComponentInChildren<Camera>();
+    }
+
+    void Update()
     {
-      rb.AddForce(Vector3.up * gravity, ForceMode.Acceleration);
+        JumpHandler();
+        MovementHandler();
+        RotationHandler();
     }
-  }
 
-  private bool IsGrounded()
-  {
-    // 检查是否接触地面（通过射线检测角色脚下是否有碰撞体）
-    return Physics.Raycast(transform.position, Vector3.down, 1.1f);
-  }
+    // 控制器移动
+    void MovementHandler()
+    {
+        // 获取键盘水平方向（A、D）输入
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        // 获取键盘垂直方向（W、S）输入
+        float verticalInput = Input.GetAxisRaw("Vertical");
+
+        // 水平平面上控制器的移动方向
+        moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
+
+        // moveDirection * moveSpeed 为水平平面上的移动，verticalMovement 为竖直方向上的移动
+        characterController.Move((moveDirection * moveSpeed + verticalMovement) * Time.deltaTime);
+    }
+
+    // 视角转动
+    void RotationHandler()
+    {
+        // 获取鼠标X（水平）方向输入，并转换为角度
+        float angleX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * senX;
+        // 获取鼠标X（垂直）方向输入，并转换为角度
+        float angleY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * senY;
+
+
+        // Unity的坐标系是左手系
+        // 左手握拳伸出拇指，拇指指向坐标轴正向，四指方向是旋转的正方向
+        // 向上的坐标轴为Y轴，所以鼠标左右移动是物体绕Y轴转动
+        yRotation += angleX;
+
+        // 向右的坐标轴为X轴，所以鼠标上下移动是物体绕X轴转动
+        xRotation -= angleY;
+        // 限制视角上下转动的角度，不允许无限制转动
+        xRotation = Mathf.Clamp(xRotation, -70f, 50f);
+
+        // 控制器执行在水平方向上的旋转
+        transform.rotation = Quaternion.Euler(0, yRotation, 0);
+        // 摄像机执行在竖直方向上的旋转
+        mainCamera.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+    }
+
+    // 跳跃
+    void JumpHandler()
+    {
+        // Character Controller中的API：isGrounded，判断是否碰地
+        if (characterController.isGrounded)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+                verticalSpeed = jumpSpeed;
+            // 如果未跳跃，给一个较小的向下速度，便于isGrounded判断
+            else
+                verticalSpeed = -1f;
+        }
+        else
+        {
+            // 自由落体
+            verticalSpeed -= gravity * Time.deltaTime;
+        }
+
+        // Y轴表示竖直方向
+        verticalMovement.y = verticalSpeed;
+    }
 }
