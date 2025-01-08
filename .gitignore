@@ -1,0 +1,13 @@
+# Unity
+[Bb]uild/
+[Bb]uilds/
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Pp]rojectSettings/
+.vs/
+.idea/
+Logs
+UserSettings
+Assets/Scenes
+Assets/Assets
