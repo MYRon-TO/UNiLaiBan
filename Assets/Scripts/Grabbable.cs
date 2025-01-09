@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Grabbable : MonoBehaviour
 {
-    public bool grabbable = true;
+    private bool grabbable = true;
+    public float angularDamping = 1f;
+    public float linearDamping = 5f;
 
     // 用来标记物件是不是可以被抓取
 
@@ -18,8 +20,8 @@ public class Grabbable : MonoBehaviour
 
         if (rb != null)
         {
-            rb.linearDamping = 5f; // 增加物体移动阻力
-            rb.angularDamping = 10f; // 增加物体旋转阻力
+            rb.linearDamping = linearDamping;
+            rb.angularDamping = angularDamping;
         }
         else
         {

@@ -113,25 +113,25 @@ public class Handler : MonoBehaviour
             targetDistance = Vector3.zero;
         }
 
-        // 'F3' 键开启被抓物体重力。
-        if (Input.GetKeyDown(KeyCode.F3) && targetTransform != null)
-        {
-            Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = true;
-            }
-        }
+        // // 'F3' 键开启被抓物体重力。
+        // if (Input.GetKeyDown(KeyCode.F3) && targetTransform != null)
+        // {
+        //     Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
+        //     if (rb != null)
+        //     {
+        //         rb.useGravity = true;
+        //     }
+        // }
 
-        // 'F4' 键关闭被抓物体重力。
-        if (Input.GetKeyDown(KeyCode.F4) && targetTransform != null)
-        {
-            Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = false;
-            }
-        }
+        // // 'F4' 键关闭被抓物体重力。
+        // if (Input.GetKeyDown(KeyCode.F4) && targetTransform != null)
+        // {
+        //     Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
+        //     if (rb != null)
+        //     {
+        //         rb.useGravity = false;
+        //     }
+        // }
 
         // 'F1' 键隐藏抓把。
         if (Input.GetKeyDown(KeyCode.F1))

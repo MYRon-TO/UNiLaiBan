@@ -30,14 +30,14 @@ public class PlayerController : MonoBehaviour
   private Vector3 verticalMovement;
 
   // 拾取范围
-  public float pickUpRange = 7f;
-  public Transform handPosition;   // 玩家手部位置（或者展示物体的区域）
-  public float itemMoveSpeed = 5f;     // 物体跟随手部的移动速度
+  // public float pickUpRange = 7f;
+  // public Transform handPosition;   // 玩家手部位置（或者展示物体的区域）
+  // public float itemMoveSpeed = 5f;     // 物体跟随手部的移动速度
 
   // 拿起的物体
-  private GameObject heldObject = null;
-  private Vector3 originalPosition; // 物体原始位置
-  private Quaternion originalRotation; // 物体原始旋转
+  // private GameObject heldObject = null;
+  // private Vector3 originalPosition; // 物体原始位置
+  // private Quaternion originalRotation; // 物体原始旋转
 
   void Start()
   {
@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
     JumpHandler();
     MovementHandler();
     RotationHandler();
-    PickUpHandler();
+    // PickUpHandler();
   }
 
   // 控制器移动
@@ -120,51 +120,51 @@ public class PlayerController : MonoBehaviour
     verticalMovement.y = verticalSpeed;
   }
 
-  void PickUpHandler()
-  {
-    if (Input.GetKeyDown(KeyCode.E)) // 按下 E 键拾取或放下物体
-    {
-      if (heldObject == null)
-        TryPickUp();
-      else
-        DropObject();
-    }
+  // void PickUpHandler()
+  // {
+  //   if (Input.GetKeyDown(KeyCode.E)) // 按下 E 键拾取或放下物体
+  //   {
+  //     if (heldObject == null)
+  //       TryPickUp();
+  //     else
+  //       DropObject();
+  //   }
 
-    if (heldObject != null)
-    {
-      MoveObjectToHand();
-    }
-  }
+  //   if (heldObject != null)
+  //   {
+  //     MoveObjectToHand();
+  //   }
+  // }
 
-  private void TryPickUp()
-  {
-    RaycastHit hit;
-    // 发射射线，检测物体
-    if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit, pickUpRange))
-    {
-      if (hit.collider.CompareTag("Pickup"))  // 物体标签为 "Pickup"
-      {
-        heldObject = hit.collider.gameObject;  // 拾取物体
-        originalPosition = heldObject.transform.position;  // 记录原始位置
-        originalRotation = heldObject.transform.rotation;  // 记录原始旋转
-        heldObject.transform.SetParent(handPosition);  // 将物体附加到手部位置
-      }
-    }
-  }
-  private void DropObject()
-  {
-    heldObject.transform.SetParent(null);  // 解除父物体
-    // heldObject.GetComponent<Rigidbody>().isKinematic = false;  // 恢复物理模拟
-    heldObject.transform.position = originalPosition;  // 将物体放回原处
-    heldObject.transform.rotation = originalRotation;  // 恢复原始旋转
-    heldObject = null;  // 清空当前拿的物体
-  }
+  // private void TryPickUp()
+  // {
+  //   RaycastHit hit;
+  //   // 发射射线，检测物体
+  //   if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit, pickUpRange))
+  //   {
+  //     if (hit.collider.CompareTag("Pickup"))  // 物体标签为 "Pickup"
+  //     {
+  //       heldObject = hit.collider.gameObject;  // 拾取物体
+  //       originalPosition = heldObject.transform.position;  // 记录原始位置
+  //       originalRotation = heldObject.transform.rotation;  // 记录原始旋转
+  //       heldObject.transform.SetParent(handPosition);  // 将物体附加到手部位置
+  //     }
+  //   }
+  // }
+  // private void DropObject()
+  // {
+  //   heldObject.transform.SetParent(null);  // 解除父物体
+  //   // heldObject.GetComponent<Rigidbody>().isKinematic = false;  // 恢复物理模拟
+  //   heldObject.transform.position = originalPosition;  // 将物体放回原处
+  //   heldObject.transform.rotation = originalRotation;  // 恢复原始旋转
+  //   heldObject = null;  // 清空当前拿的物体
+  // }
 
-  private void MoveObjectToHand()
-  {
-    // 平滑移动物体到手部位置
-    heldObject.transform.position = Vector3.Lerp(heldObject.transform.position, handPosition.position, moveSpeed * Time.deltaTime);
-    heldObject.transform.rotation = Quaternion.Slerp(heldObject.transform.rotation, handPosition.rotation, moveSpeed * Time.deltaTime);
-  }
+  // private void MoveObjectToHand()
+  // {
+  //   // 平滑移动物体到手部位置
+  //   heldObject.transform.position = Vector3.Lerp(heldObject.transform.position, handPosition.position, moveSpeed * Time.deltaTime);
+  //   heldObject.transform.rotation = Quaternion.Slerp(heldObject.transform.rotation, handPosition.rotation, moveSpeed * Time.deltaTime);
+  // }
 }
 
