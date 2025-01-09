@@ -36,11 +36,11 @@ public class Handler : MonoBehaviour
 
     void Start()
     {
-        // // 初始化myself为玩家的transform，假设它位于层级结构中的特定位置。
-        // if (transform.parent != null && transform.parent.parent != null)
-        // {
-        //     myself = transform.parent.parent.transform;
-        // }
+        // 初始化myself为玩家的transform，假设它位于层级结构中的特定位置。
+        if (transform.parent != null && transform.parent.parent != null)
+        {
+            myself = transform.parent.parent.transform;
+        }
     }
 
     void Update()
@@ -48,25 +48,16 @@ public class Handler : MonoBehaviour
         // 指定鼠标左键作为抓取按键。
         KeyCode grabberKey = KeyCode.Mouse0;
 
-        // 当按下鼠标左键并且已经检测到可抓取的目标时开始抓取。
-        if (Input.GetKeyDown(grabberKey) && targetTransform != null)
+        // 当按下鼠标左键并且没有正在抓取的物体时，尝试寻找新目标并开始抓取。
+        if (Input.GetKeyDown(grabberKey) && !isGrabbing)
         {
-            BeginGrab();
+            TryBeginGrab();
         }
 
         // 如果正在抓取并且持续按住鼠标左键，则更新物体位置和旋转。
         if (isGrabbing && Input.GetKey(grabberKey) && targetTransform != null)
         {
-            Vector3 currentAngle = myself.eulerAngles;
-            Vector3 angleDifference = currentAngle - lastAngle;
-            targetDistance = Quaternion.Euler(angleDifference) * targetDistance;
-            lastAngle = currentAngle;
-
-            // 更新物体位置，使其跟随手部移动。
-            targetTransform.position = transform.position + targetDistance;
-
-            // 更新物体旋转，使其与手部联动。
-            targetTransform.rotation = myself.rotation * Quaternion.Euler(targetEuler);
+            UpdateGrab();
         }
 
         // 当松开鼠标左键时结束抓取并复原物体位置和旋转。
@@ -77,6 +68,21 @@ public class Handler : MonoBehaviour
 
         // 处理其他输入，如滚动轮、快捷键等。
         HandleOtherInputs();
+    }
+
+    private void TryBeginGrab()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 0.5f); // 检查周围一定半径内的碰撞体
+        foreach (var hitCollider in hitColliders)
+        {
+            Grabbable temp;
+            if (hitCollider.TryGetComponent<Grabbable>(out temp))
+            {
+                targetTransform = hitCollider.transform;
+                BeginGrab();
+                return;
+            }
+        }
     }
 
     private void BeginGrab()
@@ -90,12 +96,32 @@ public class Handler : MonoBehaviour
         originalRotation = targetTransform.rotation;
     }
 
+    private void UpdateGrab()
+    {
+        Vector3 currentAngle = myself.eulerAngles;
+        Vector3 angleDifference = currentAngle - lastAngle;
+        targetDistance = Quaternion.Euler(angleDifference) * targetDistance;
+        lastAngle = currentAngle;
+
+        // 更新物体位置，使其跟随手部移动。
+        targetTransform.position = transform.position + targetDistance;
+
+        // 更新物体旋转，使其与手部联动。
+        targetTransform.rotation = myself.rotation * Quaternion.Euler(targetEuler);
+    }
+
     private void EndGrab()
     {
         // 结束抓取，将物体恢复到原始位置和旋转。
         isGrabbing = false;
         targetTransform.position = originalPosition;
         targetTransform.rotation = originalRotation;
+
+        // 重置目标信息，以便可以再次抓取其他物体。
+        targetTransform = null;
+        targetName = "";
+        targetEuler = Vector3.zero;
+        targetDistance = Vector3.zero;
     }
 
     private void HandleOtherInputs()
@@ -112,26 +138,6 @@ public class Handler : MonoBehaviour
             targetEuler = restAngle;
             targetDistance = Vector3.zero;
         }
-
-        // // 'F3' 键开启被抓物体重力。
-        // if (Input.GetKeyDown(KeyCode.F3) && targetTransform != null)
-        // {
-        //     Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
-        //     if (rb != null)
-        //     {
-        //         rb.useGravity = true;
-        //     }
-        // }
-
-        // // 'F4' 键关闭被抓物体重力。
-        // if (Input.GetKeyDown(KeyCode.F4) && targetTransform != null)
-        // {
-        //     Rigidbody rb = targetTransform.GetComponent<Rigidbody>();
-        //     if (rb != null)
-        //     {
-        //         rb.useGravity = false;
-        //     }
-        // }
 
         // 'F1' 键隐藏抓把。
         if (Input.GetKeyDown(KeyCode.F1))
@@ -170,22 +176,11 @@ public class Handler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // 当进入触发器区域且未指定目标时，设置目标物体。
-        if (other.TryGetComponent<Grabbable>(out Grabbable temp) && string.IsNullOrEmpty(targetName))
-        {
-            targetName = other.GetComponent<Transform>().name;
-            targetTransform = other.transform;
-        }
+        // 这里不再设置目标物体，改为在TryBeginGrab中动态查找。
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // 当离开触发器区域时，清除目标物体信息。
-        if (targetTransform != null && other == targetTransform)
-        {
-            targetName = "";
-            targetTransform = null;
-            targetEuler = Vector3.zero;
-        }
+        // 这里也不再清除目标物体信息，因为我们在EndGrab中已经处理了。
     }
 }
