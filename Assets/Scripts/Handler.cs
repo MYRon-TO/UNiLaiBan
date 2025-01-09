@@ -36,11 +36,11 @@ public class Handler : MonoBehaviour
 
     void Start()
     {
-        // 初始化myself为玩家的transform，假设它位于层级结构中的特定位置。
-        if (transform.parent != null && transform.parent.parent != null)
-        {
-            myself = transform.parent.parent.transform;
-        }
+        // // 初始化myself为玩家的transform，假设它位于层级结构中的特定位置。
+        // if (transform.parent != null && transform.parent.parent != null)
+        // {
+        //     myself = transform.parent.parent.transform;
+        // }
     }
 
     void Update()
