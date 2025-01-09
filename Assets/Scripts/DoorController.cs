@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
+  public AudioSource source;//声音
   // public Transform door_a;  // 门的 Transform
   public Transform door_b;  // 门的 Transform
   public Transform door_c;  // 门的 Transform
@@ -40,7 +41,9 @@ public class DoorController : MonoBehaviour
   {
     if (other.CompareTag("Player"))  // 检查是否是玩家
     {
+      source.Play();
       isPlayerNear = true;
+
     }
   }
 
@@ -48,7 +51,9 @@ public class DoorController : MonoBehaviour
   {
     if (other.CompareTag("Player"))  // 检查玩家离开触发区域
     {
+      source.Play();
       isPlayerNear = false;
+           
     }
   }
 

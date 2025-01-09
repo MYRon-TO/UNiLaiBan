@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+  public AudioSource footstep_source;//声音
   private CharacterController characterController;
   private Camera mainCamera;
 
@@ -56,6 +57,7 @@ public class PlayerController : MonoBehaviour
     MovementHandler();
     RotationHandler();
     // PickUpHandler();
+
   }
 
   // 控制器移动
@@ -65,6 +67,16 @@ public class PlayerController : MonoBehaviour
     float horizontalInput = Input.GetAxisRaw("Horizontal");
     // 获取键盘垂直方向（W、S）输入
     float verticalInput = Input.GetAxisRaw("Vertical");
+
+    //控制脚步音频播放
+    if (horizontalInput + verticalInput != 0){
+      if (!footstep_source.isPlaying){
+        footstep_source.Play();
+      }
+    }
+    else{
+      footstep_source.Stop();
+    }
 
     // 水平平面上控制器的移动方向
     moveDirection = transform.forward * verticalInput + transform.right * horizontalInput;
